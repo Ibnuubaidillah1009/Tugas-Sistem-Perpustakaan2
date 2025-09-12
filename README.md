@@ -133,39 +133,9 @@ Setelah menjalankan seeder, Anda dapat login dengan akun berikut:
 - ✅ Kembalikan buku
 - ✅ Bayar denda sendiri
 
-## Screenshots
-
-### Login Page
-![Login](screenshots/login.png)
-
-### Dashboard Perpustakawan
-![Dashboard Perpustakawan](screenshots/dashboard-perpustakawan.png)
-
-### Dashboard Guru/Siswa
-![Dashboard Guru](screenshots/dashboard-guru.png)
-
-### Daftar Buku
-![Daftar Buku](screenshots/books.png)
-
-### Peminjaman
-![Peminjaman](screenshots/borrowings.png)
-
-## Kontribusi
-
-1. Fork repository
-2. Buat feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
-
 ## Lisensi
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
-## Kontak
-
-- Email: your-email@example.com
-- Project Link: [https://github.com/yourusername/library-system](https://github.com/yourusername/library-system)
 
 ## Sistem Denda
 

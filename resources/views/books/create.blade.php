@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('perpustakaan.books.store') }}" enctype="multipart/form-data" class="p-6 space-y-6">
+        <form method="POST" action="{{ route('perpustakawan.books.store') }}" enctype="multipart/form-data" class="p-6 space-y-6">
             @csrf
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -147,32 +147,6 @@
                         @enderror
                     </div>
 
-                    <!-- Cover Image -->
-                    <div>
-                        <label for="cover_image" class="block text-sm font-medium text-gray-700 mb-2">
-                            Cover Buku
-                        </label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
-                            <div class="space-y-1 text-center">
-                                <i class="fas fa-image text-4xl text-gray-400"></i>
-                                <div class="flex text-sm text-gray-600">
-                                    <label for="cover_image" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
-                                        <span>Upload cover buku</span>
-                                        <input id="cover_image" name="cover_image" type="file" accept="image/*" class="sr-only" onchange="previewImage(this, 'cover-preview')">
-                                    </label>
-                                    <p class="pl-1">atau drag & drop</p>
-                                </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 2MB</p>
-                            </div>
-                        </div>
-                        <div id="cover-preview" class="mt-2 hidden">
-                            <img id="cover-preview-img" class="w-full h-48 object-cover rounded-md">
-                        </div>
-                        @error('cover_image')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     <!-- Description -->
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
@@ -190,7 +164,7 @@
 
             <!-- Action Buttons -->
             <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-                <a href="{{ route('perpustakaan.books.index') }}" 
+                <a href="{{ route('perpustakawan.books.index') }}"
                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
                     <i class="fas fa-times mr-2"></i>
                     Batal

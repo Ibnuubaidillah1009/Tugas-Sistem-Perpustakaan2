@@ -54,9 +54,14 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0">
-                                <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                                    <i class="fas fa-user text-primary-600"></i>
-                                </div>
+                                @if($user->photo)
+                                    <img src="{{ $user->photo_url }}" alt="{{ $user->name }}"
+                                         class="h-10 w-10 rounded-full object-cover border-2 border-gray-300">
+                                @else
+                                    <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                        <i class="fas fa-user text-primary-600"></i>
+                                    </div>
+                                @endif
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center space-x-3">

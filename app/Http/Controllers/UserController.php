@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -35,7 +36,7 @@ public function store(Request $request)
     $photoName = null;
     if ($request->hasFile('photo')) {
         $photoName = time() . '_' . $request->file('photo')->getClientOriginalName();
-        $request->file('photo')->storeAs('public/photos/users', $photoName);
+        $request->file('photo')->storeAs('public/images', $photoName);
     }
 
     $user = User::create([
@@ -46,7 +47,7 @@ public function store(Request $request)
         'photo' => $photoName,
     ]);
 
-    return redirect()->route('perpustakaan.users.index')
+    return redirect()->route('perpustakawan.users.index')
         ->with('success', 'User berhasil ditambahkan.');
 }
 
@@ -55,7 +56,7 @@ public function update(Request $request, User $user)
     $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-        'role' => 'required|in:perpustakaan,guru,siswa',
+        'role' => 'required|in:guru,siswa',
         'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
@@ -63,11 +64,11 @@ public function update(Request $request, User $user)
     if ($request->hasFile('photo')) {
         // Delete old photo if exists
         if ($user->photo) {
-            Storage::delete('public/photos/users/' . $user->photo);
+            Storage::delete('public/images/' . $user->photo);
         }
-        
+
         $photoName = time() . '_' . $request->file('photo')->getClientOriginalName();
-        $request->file('photo')->storeAs('public/photos/users', $photoName);
+        $request->file('photo')->storeAs('public/images', $photoName);
     }
 
     $user->update([
@@ -81,7 +82,30 @@ public function update(Request $request, User $user)
         $user->update(['password' => Hash::make($request->password)]);
     }
 
-    return redirect()->route('perpustakaan.users.index')
+    return redirect()->route('perpustakawan.users.index')
         ->with('success', 'User berhasil diperbarui.');
+    }
+
+    public function show(User $user)
+    {
+        return view('users.show', compact('user'));
+    }
+
+    public function edit(User $user)
+    {
+        return view('users.edit', compact('user'));
+    }
+
+    public function destroy(User $user)
+    {
+        // Delete photo if exists
+        if ($user->photo) {
+            Storage::delete('public/images/' . $user->photo);
+        }
+
+        $user->delete();
+
+        return redirect()->route('perpustakawan.users.index')
+            ->with('success', 'User berhasil dihapus.');
     }
 }

@@ -69,7 +69,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4">
                             <div class="flex-shrink-0">
-                                <i class="fas fa-book text-primary-600 text-xl"></i>
+                                <img src="{{ $borrowing->book->photo_url }}" alt="{{ $borrowing->book->title }}" class="w-8 h-8 rounded object-cover">
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center space-x-3">
@@ -80,7 +80,7 @@
                                         @if($borrowing->status === 'borrowed') bg-green-100 text-green-800
                                         @elseif($borrowing->status === 'returned') bg-gray-100 text-gray-800
                                         @else bg-red-100 text-red-800 @endif">
-                                        {{ ucfirst($borrowing->status) }}
+                                        {{ $borrowing->status_text }}
                                     </span>
                                 </div>
                                 <p class="text-sm text-gray-500">
@@ -118,21 +118,12 @@
                         <div class="flex items-center space-x-2">
                             @if($borrowing->status === 'borrowed')
                                 @if(auth()->user()->isPerpustakawan())
-                                    <a href="{{ route('perpustakawan.borrowings.edit', $borrowing) }}" 
+                                    <a href="{{ route('perpustakawan.borrowings.edit', $borrowing) }}"
                                        class="text-yellow-600 hover:text-yellow-800">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                @endif
-                                
-                                @if(auth()->user()->isPerpustakawan() || $borrowing->user_id === auth()->id())
-                                    @php
-                                        $returnRoute = auth()->user()->isPerpustakawan() ? 
-                                            route('perpustakawan.borrowings.return', $borrowing) : 
-                                            (auth()->user()->isGuru() ? 
-                                                route('guru.borrowings.return', $borrowing) : 
-                                                route('siswa.borrowings.return', $borrowing));
-                                    @endphp
-                                    <form method="POST" action="{{ $returnRoute }}" 
+
+                                    <form method="POST" action="{{ route('perpustakawan.borrowings.return', $borrowing) }}"
                                           class="inline" onsubmit="return confirm('Apakah Anda yakin ingin mengembalikan buku ini?')">
                                         @csrf
                                         @method('PATCH')
@@ -165,6 +156,11 @@
                                 <a href="{{ route('perpustakawan.borrowings.show', $borrowing) }}" 
                                    class="text-blue-600 hover:text-blue-800">
                                     <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('perpustakawan.borrowings.print-receipt', $borrowing) }}"
+                                   target="_blank"
+                                   class="text-blue-600 hover:text-blue-800 ml-2" title="Cetak Struk">
+                                    <i class="fas fa-print"></i>
                                 </a>
                                 
                                 <form method="POST" action="{{ route('perpustakawan.borrowings.destroy', $borrowing) }}" 

@@ -19,11 +19,18 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Profile routes (accessible to all authenticated users)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
+    Route::patch('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
+});
+
 // Perpustakawan routes
 Route::middleware(['auth', 'role:perpustakawan'])->prefix('perpustakawan')->name('perpustakawan.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'perpustakawan'])->name('dashboard');
     Route::resource('books', BookController::class);
     Route::resource('borrowings', BorrowingController::class);
+    Route::get('/borrowings/{borrowing}/print-receipt', [BorrowingController::class, 'printReceipt'])->name('borrowings.print-receipt');
     Route::patch('/borrowings/{borrowing}/return', [BorrowingController::class, 'return'])->name('borrowings.return');
     Route::patch('/borrowings/{borrowing}/pay-fine', [BorrowingController::class, 'payFine'])->name('borrowings.pay-fine');
     Route::resource('users', UserController::class);
@@ -35,8 +42,9 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     Route::get('/books', [BookController::class, 'index'])->name('books.index');
     Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
     Route::get('/borrowings', [BorrowingController::class, 'index'])->name('borrowings.index');
+    Route::get('/borrowings/create', [BorrowingController::class, 'create'])->name('borrowings.create');
     Route::post('/borrowings', [BorrowingController::class, 'store'])->name('borrowings.store');
-    Route::patch('/borrowings/{borrowing}/return', [BorrowingController::class, 'return'])->name('borrowings.return');
+    Route::get('/borrowings/{borrowing}/print-receipt', [BorrowingController::class, 'printReceipt'])->name('borrowings.print-receipt');
     Route::patch('/borrowings/{borrowing}/pay-fine', [BorrowingController::class, 'payFine'])->name('borrowings.pay-fine');
 });
 
@@ -46,7 +54,13 @@ Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->grou
     Route::get('/books', [BookController::class, 'index'])->name('books.index');
     Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
     Route::get('/borrowings', [BorrowingController::class, 'index'])->name('borrowings.index');
+    Route::get('/borrowings/create', [BorrowingController::class, 'create'])->name('borrowings.create');
     Route::post('/borrowings', [BorrowingController::class, 'store'])->name('borrowings.store');
-    Route::patch('/borrowings/{borrowing}/return', [BorrowingController::class, 'return'])->name('borrowings.return');
+    Route::get('/borrowings/{borrowing}/print-receipt', [BorrowingController::class, 'printReceipt'])->name('borrowings.print-receipt');
     Route::patch('/borrowings/{borrowing}/pay-fine', [BorrowingController::class, 'payFine'])->name('borrowings.pay-fine');
+});
+
+// API routes for AJAX
+Route::middleware('auth')->prefix('api')->group(function () {
+    Route::get('/books/search', [BookController::class, 'search'])->name('api.books.search');
 });

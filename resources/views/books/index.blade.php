@@ -40,9 +40,7 @@
 						? route('guru.books.show', $book)
 						: route('siswa.books.show', $book));
 
-				$coverUrl = method_exists($book, 'getCoverImageUrlAttribute') || isset($book->cover_image_url)
-					? $book->cover_image_url
-					: ($book->cover_image ? asset('storage/photos/books/covers/' . $book->cover_image) : asset('images/default-cover.png'));
+				$coverUrl = $book->photo_url;
 
 				$canBorrow = (auth()->user()->isGuru() || auth()->user()->isSiswa());
 				$borrowRoute = auth()->user()->isGuru()

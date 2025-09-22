@@ -12,7 +12,11 @@
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-book text-2xl text-primary-600"></i>
+                        @if(auth()->user()->photo)
+                            <img src="{{ auth()->user()->photo_url }}" alt="User Photo" class="w-12 h-12 rounded-full object-cover">
+                        @else
+                            <i class="fas fa-user text-2xl text-primary-600"></i>
+                        @endif
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>

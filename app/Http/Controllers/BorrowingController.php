@@ -13,20 +13,37 @@ class BorrowingController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         // Update fines for overdue borrowings
         $this->updateOverdueFines();
-        
+
+        $query = Borrowing::with(['user', 'book']);
+
         if ($user->isPerpustakawan()) {
-            $borrowings = Borrowing::with(['user', 'book'])
-                ->latest()
-                ->paginate(10);
+            // For perpustakawan, show all borrowings
         } else {
-            $borrowings = Borrowing::with('book')
-                ->where('user_id', $user->id)
-                ->latest()
-                ->paginate(10);
+            // For guru and siswa, show only their own borrowings
+            $query->where('user_id', $user->id);
         }
+
+        // Handle search query
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('book', function ($bookQuery) use ($search) {
+                    $bookQuery->where('title', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        // Handle status filter
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+
+        $borrowings = $query->latest()->paginate(10)->withQueryString();
 
         return view('borrowings.index', compact('borrowings'));
     }
@@ -35,9 +52,9 @@ public function create()
 {
     $user = auth()->user();
     
-    if ($user->isPerpustakaan()) {
+    if ($user->isPerpustakawan()) {
         $books = Book::where('stock', '>', 0)->get();
-        $users = User::where('role', '!=', 'perpustakaan')->get();
+        $users = User::where('role', '!=', 'perpustakawan')->get();
         return view('borrowings.create', compact('books', 'users'));
     } else {
         // For guru and siswa, show available books
@@ -50,27 +67,27 @@ public function store(Request $request)
 {
     $user = auth()->user();
     
-    if ($user->isPerpustakaan()) {
+    if ($user->isPerpustakawan()) {
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'book_id' => 'required|exists:books,id',
             'due_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
         ]);
-        
+
         $userId = $request->user_id;
     } else {
         $request->validate([
             'book_id' => 'required|exists:books,id',
             'notes' => 'nullable|string',
         ]);
-        
+
         $userId = $user->id;
     }
 
     $book = Book::findOrFail($request->book_id);
-    
-    if ($book->stock <= 0) {
+
+    if ($book->available_stock <= 0) {
         return back()->with('error', 'Buku tidak tersedia.');
     }
 
@@ -93,10 +110,7 @@ public function store(Request $request)
         'notes' => $request->notes,
     ]);
 
-    // Decrease book stock
-    $book->decrement('stock');
-
-    $redirectRoute = $user->isPerpustakaan() ? 'perpustakaan.borrowings.index' : 
+    $redirectRoute = $user->isPerpustakawan() ? 'perpustakawan.borrowings.index' :
                     ($user->isGuru() ? 'guru.borrowings.index' : 'siswa.borrowings.index');
 
     return redirect()->route($redirectRoute)
@@ -107,6 +121,13 @@ public function store(Request $request)
     {
         $borrowing->load(['user', 'book']);
         return view('borrowings.show', compact('borrowing'));
+    }
+
+    public function printReceipt(Borrowing $borrowing)
+    {
+        $borrowing->load(['user', 'book']);
+        $librarian = auth()->user();
+        return view('borrowings.receipt', compact('borrowing', 'librarian'));
     }
 
     public function edit(Borrowing $borrowing)
@@ -144,16 +165,17 @@ public function store(Request $request)
 
     public function return(Borrowing $borrowing)
     {
+        // Only librarians can return books
+        if (!auth()->user()->isPerpustakawan()) {
+            abort(403, 'Akses ditolak. Hanya perpustakawan yang dapat mengembalikan buku.');
+        }
+
         $borrowing->update([
             'status' => 'returned',
             'return_date' => now(),
         ]);
 
-        $user = auth()->user();
-        $redirectRoute = $user->isPerpustakawan() ? 'perpustakawan.borrowings.index' : 
-                        ($user->isGuru() ? 'guru.borrowings.index' : 'siswa.borrowings.index');
-
-        return redirect()->route($redirectRoute)
+        return redirect()->route('perpustakawan.borrowings.index')
             ->with('success', 'Buku berhasil dikembalikan.');
     }
 
@@ -162,11 +184,28 @@ public function store(Request $request)
      */
     private function updateOverdueFines()
     {
-        $overdueBorrowings = Borrowing::where('status', 'borrowed')
-            ->where('due_date', '<', now())
+        // Set status to 'overdue' for borrowings overdue by more than 7 days
+        $severelyOverdueBorrowings = Borrowing::where('status', 'borrowed')
+            ->where('due_date', '<', now()->subDays(7))
+            ->whereHas('user', function($q) {
+                $q->where('role', 'siswa');
+            })
             ->get();
-        
-        foreach ($overdueBorrowings as $borrowing) {
+
+        foreach ($severelyOverdueBorrowings as $borrowing) {
+            $borrowing->update(['status' => 'overdue']);
+            $borrowing->updateFine();
+        }
+
+        // Update fines for all overdue borrowings (in case some are between 0-7 days overdue)
+        $allOverdueBorrowings = Borrowing::where('status', 'borrowed')
+            ->where('due_date', '<', now())
+            ->whereHas('user', function($q) {
+                $q->where('role', 'siswa');
+            })
+            ->get();
+
+        foreach ($allOverdueBorrowings as $borrowing) {
             $borrowing->updateFine();
         }
     }

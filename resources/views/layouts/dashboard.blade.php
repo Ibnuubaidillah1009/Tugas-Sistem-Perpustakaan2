@@ -122,7 +122,12 @@
                         
                         <div class="relative">
                             <button class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 focus:outline-none">
-                                <i class="fas fa-user-circle text-2xl"></i>
+                                @if(auth()->user()->photo)
+                                    <img src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->name }}"
+                                         class="w-8 h-8 rounded-full object-cover border-2 border-gray-300">
+                                @else
+                                    <i class="fas fa-user-circle text-2xl"></i>
+                                @endif
                             </button>
                         </div>
                         

@@ -4,31 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 
 class Book extends Model
 {
     use HasFactory;
 
 protected $fillable = [
-    'title', 'author', 'isbn', 'description', 'stock', 'category', 
+    'title', 'author', 'isbn', 'description', 'stock', 'category',
     'publication_year', 'publisher', 'photo', 'cover_image',
 ];
 
 public function getPhotoUrlAttribute()
 {
-    if ($this->photo) {
-        return asset('storage/photos/books/' . $this->photo);
+    if ($this->photo && Storage::exists('public/images/' . $this->photo)) {
+        return asset('storage/images/' . $this->photo);
     }
     return asset('images/default-book.png');
 }
 
-public function getCoverImageUrlAttribute()
-{
-    if ($this->cover_image) {
-        return asset('storage/photos/books/covers/' . $this->cover_image);
-    }
-    return asset('images/default-cover.png');
-}
+
     /**
      * Get the borrowings for the book.
      */

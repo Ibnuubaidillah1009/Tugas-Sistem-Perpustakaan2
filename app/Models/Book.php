@@ -11,14 +11,14 @@ class Book extends Model
     use HasFactory;
 
 protected $fillable = [
-    'title', 'author', 'isbn', 'description', 'stock', 'category',
+    'title', 'author', 'isbn', 'barcode', 'description', 'stock', 'category',
     'publication_year', 'publisher', 'photo', 'cover_image',
 ];
 
 public function getPhotoUrlAttribute()
 {
-    if ($this->photo && Storage::exists('public/images/' . $this->photo)) {
-        return asset('storage/images/' . $this->photo);
+    if ($this->photo && file_exists(public_path('images/' . $this->photo))) {
+        return asset('images/' . $this->photo);
     }
     return asset('images/default-book.png');
 }
@@ -30,6 +30,24 @@ public function getPhotoUrlAttribute()
     public function borrowings()
     {
         return $this->hasMany(Borrowing::class);
+    }
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Prevent deletion if book has active borrowings
+        static::deleting(function ($book) {
+            if ($book->borrowings()->where('status', 'dipinjam')->exists()) {
+                // Don't delete the book, but allow force delete
+                if (!request()->has('force_delete')) {
+                    return false;
+                }
+            }
+        });
     }
 
     /**

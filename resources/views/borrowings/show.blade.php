@@ -19,11 +19,11 @@
                 </div>
                 <div class="text-right">
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                        @if($borrowing->status === 'borrowed') bg-green-100 text-green-800
-                        @elseif($borrowing->status === 'returned') bg-gray-100 text-gray-800
+                        @if($borrowing->status === 'dipinjam') bg-green-100 text-green-800
+                        @elseif($borrowing->status === 'dikembalikan') bg-gray-100 text-gray-800
                         @else bg-red-100 text-red-800 @endif">
                         <i class="fas fa-circle text-xs mr-2"></i>
-                        {{ ucfirst($borrowing->status) }}
+                        {{ $borrowing->status_text }}
                     </span>
                 </div>
             </div>
@@ -70,7 +70,7 @@
                                 @endif
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Status</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($borrowing->status) }}</dd>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $borrowing->status_text }}</dd>
                                 </div>
                             </dl>
                         </div>
@@ -124,7 +124,21 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Aksi</h3>
                         
                         <div class="space-y-3">
-                            @if($borrowing->status === 'borrowed')
+                            @php
+                                $printRoute = auth()->user()->isPerpustakawan() ?
+                                    route('perpustakawan.borrowings.print-receipt', $borrowing) :
+                                    (auth()->user()->isGuru() ?
+                                        route('guru.borrowings.print-receipt', $borrowing) :
+                                        route('siswa.borrowings.print-receipt', $borrowing));
+                            @endphp
+                            <a href="{{ $printRoute }}"
+                               target="_blank"
+                               class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-print mr-2"></i>
+                                Cetak Struk
+                            </a>
+
+                            @if($borrowing->status === 'dipinjam')
                                 @if(auth()->user()->isPerpustakawan())
                                     <a href="{{ route('perpustakawan.borrowings.edit', $borrowing) }}" 
                                        class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">

@@ -1,0 +1,178 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Edit Profil')
+@section('page-title', 'Edit Profil')
+@section('page-description', 'Perbarui informasi profil Anda')
+
+@section('content')
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <!-- Header -->
+        <div class="px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-user-edit text-2xl"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">Edit Profil</h1>
+                    <p class="text-primary-100">{{ $user->name }}</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="p-6 space-y-6">
+            @csrf
+            @method('PATCH')
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left Column - Basic Info -->
+                <div class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nama Lengkap <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('name') border-red-500 @enderror"
+                               placeholder="Masukkan nama lengkap">
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('email') border-red-500 @enderror"
+                               placeholder="Masukkan email">
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    @if($user->isGuru())
+                    <div>
+                        <label for="nip" class="block text-sm font-medium text-gray-700 mb-2">
+                            NIP
+                        </label>
+                        <input type="text" id="nip" name="nip" value="{{ old('nip', $user->nip) }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('nip') border-red-500 @enderror"
+                               placeholder="Masukkan NIP">
+                        @error('nip')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    @elseif($user->isSiswa())
+                    <div>
+                        <label for="nis" class="block text-sm font-medium text-gray-700 mb-2">
+                            NIS
+                        </label>
+                        <input type="text" id="nis" name="nis" value="{{ old('nis', $user->nis) }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('nis') border-red-500 @enderror"
+                               placeholder="Masukkan NIS">
+                        @error('nis')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    @endif
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Password Baru (Opsional)
+                        </label>
+                        <input type="password" id="password" name="password"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('password') border-red-500 @enderror"
+                               placeholder="Kosongkan jika tidak ingin mengubah password">
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
+                            Konfirmasi Password Baru
+                        </label>
+                        <input type="password" id="password_confirmation" name="password_confirmation"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('password_confirmation') border-red-500 @enderror"
+                               placeholder="Konfirmasi password baru">
+                        @error('password_confirmation')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Right Column - Profile Photo -->
+                <div class="space-y-6">
+                    <!-- Current Profile Photo -->
+                    @if($user->photo)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Foto Profil Saat Ini
+                            </label>
+                            <div class="mt-1">
+                                <img src="{{ $user->photo_url }}" alt="{{ $user->name }}" 
+                                     class="w-full h-48 object-cover rounded-md border border-gray-300">
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Profile Photo Upload -->
+                    <div>
+                        <label for="photo" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ $user->photo ? 'Ganti Foto Profil' : 'Foto Profil' }}
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <i class="fas fa-camera text-4xl text-gray-400"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="photo" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                        <span>{{ $user->photo ? 'Ganti foto' : 'Upload foto profil' }}</span>
+                                        <input id="photo" name="photo" type="file" accept="image/*" class="sr-only" onchange="previewImage(this, 'photo-preview')">
+                                    </label>
+                                    <p class="pl-1">atau drag & drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 2MB</p>
+                            </div>
+                        </div>
+                        <div id="photo-preview" class="mt-2 hidden">
+                            <img id="photo-preview-img" class="w-full h-48 object-cover rounded-md">
+                        </div>
+                        @error('photo')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="{{ url()->previous() }}"
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
+                    <i class="fas fa-times mr-2"></i>
+                    Batal
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
+                    <i class="fas fa-save mr-2"></i>
+                    Perbarui Profil
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function previewImage(input, previewId) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById(previewId);
+            const previewImg = document.getElementById(previewId + '-img');
+            previewImg.src = e.target.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+@endsection

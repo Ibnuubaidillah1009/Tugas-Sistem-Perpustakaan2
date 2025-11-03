@@ -63,6 +63,17 @@
                                         </span>
                                     </dd>
                                 </div>
+                                @if($user->role === 'guru' && $user->nip)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">NIP</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $user->nip }}</dd>
+                                </div>
+                                @elseif($user->role === 'siswa' && $user->nis)
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">NIS</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ $user->nis }}</dd>
+                                </div>
+                                @endif
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Bergabung Sejak</dt>
                                     <dd class="mt-1 text-sm text-gray-900">{{ $user->created_at->format('d M Y') }}</dd>
@@ -79,11 +90,11 @@
                                     <div class="text-sm text-gray-500">Total Peminjaman</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-green-600">{{ $user->borrowings()->where('status', 'returned')->count() }}</div>
+                                    <div class="text-2xl font-bold text-green-600">{{ $user->borrowings()->where('status', 'dikembalikan')->count() }}</div>
                                     <div class="text-sm text-gray-500">Buku Dikembalikan</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-yellow-600">{{ $user->borrowings()->where('status', 'borrowed')->count() }}</div>
+                                    <div class="text-2xl font-bold text-yellow-600">{{ $user->borrowings()->where('status', 'dipinjam')->count() }}</div>
                                     <div class="text-sm text-gray-500">Buku Dipinjam</div>
                                 </div>
                             </div>
@@ -111,9 +122,10 @@
                                         </div>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        {{ $borrowing->status === 'returned' ? 'bg-green-100 text-green-800' : 
-                                           ($borrowing->status === 'borrowed' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                        {{ ucfirst($borrowing->status) }}
+                                        {{ $borrowing->status === 'dikembalikan' ? 'bg-green-100 text-green-800' :
+
+                                           ($borrowing->status === 'dipinjam' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                        {{ $borrowing->status_text }}
                                     </span>
                                 </div>
                                 @endforeach

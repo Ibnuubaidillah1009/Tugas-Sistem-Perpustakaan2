@@ -136,7 +136,7 @@ class DatabaseSeeder extends Seeder
             'book_id' => $book1->id,
             'borrow_date' => now()->subDays(5),
             'due_date' => now()->addDays(2),
-            'status' => 'borrowed',
+            'status' => 'dipinjam',
             'notes' => 'Untuk persiapan mengajar',
         ]);
 
@@ -145,21 +145,47 @@ class DatabaseSeeder extends Seeder
             'book_id' => $book2->id,
             'borrow_date' => now()->subDays(3),
             'due_date' => now()->addDays(4),
-            'status' => 'borrowed',
+            'status' => 'dipinjam',
             'notes' => 'Untuk tugas sekolah',
         ]);
 
-        // Create sample overdue borrowing with fine
+        // Create sample overdue borrowing with fine for siswa
         Borrowing::create([
-            'user_id' => $guru->id,
+            'user_id' => $siswa->id,
             'book_id' => $book2->id,
             'borrow_date' => now()->subDays(15),
             'due_date' => now()->subDays(8),
-            'status' => 'overdue',
+            'status' => 'terlambat',
             'notes' => 'Buku terlambat',
             'fine_amount' => 2000,
             'fine_paid' => false,
             'fine_calculated_at' => now()->subDays(1),
+        ]);
+
+        // Contoh 1: Peminjaman siswa terlambat 7 hari, denda Rp 2.000
+        Borrowing::create([
+            'user_id' => $siswa->id,
+            'book_id' => $book1->id,
+            'borrow_date' => now()->subDays(20),
+            'due_date' => now()->subDays(13),
+            'status' => 'terlambat',
+            'notes' => 'Buku terlambat dikembalikan',
+            'fine_amount' => 2000,
+            'fine_paid' => false,
+            'fine_calculated_at' => now()->subDays(2),
+        ]);
+
+        // Contoh 2: Peminjaman siswa terlambat 14 hari, denda Rp 4.000
+        Borrowing::create([
+            'user_id' => $siswa->id,
+            'book_id' => Book::skip(2)->first()->id,
+            'borrow_date' => now()->subDays(25),
+            'due_date' => now()->subDays(18),
+            'status' => 'terlambat',
+            'notes' => 'Buku sangat terlambat',
+            'fine_amount' => 4000,
+            'fine_paid' => false,
+            'fine_calculated_at' => now()->subDays(3),
         ]);
     }
 }

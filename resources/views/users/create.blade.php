@@ -63,6 +63,30 @@
                         @enderror
                     </div>
 
+                    <div id="nip-field" class="hidden">
+                        <label for="nip" class="block text-sm font-medium text-gray-700 mb-2">
+                            NIP
+                        </label>
+                        <input type="text" id="nip" name="nip" value="{{ old('nip') }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('nip') border-red-500 @enderror"
+                               placeholder="Masukkan NIP">
+                        @error('nip')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div id="nis-field" class="hidden">
+                        <label for="nis" class="block text-sm font-medium text-gray-700 mb-2">
+                            NIS
+                        </label>
+                        <input type="text" id="nis" name="nis" value="{{ old('nis') }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 @error('nis') border-red-500 @enderror"
+                               placeholder="Masukkan NIS">
+                        @error('nis')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                             Password <span class="text-red-500">*</span>
@@ -148,5 +172,21 @@ function previewImage(input, previewId) {
         reader.readAsDataURL(file);
     }
 }
+
+document.getElementById('role').addEventListener('change', function() {
+    const role = this.value;
+    const nipField = document.getElementById('nip-field');
+    const nisField = document.getElementById('nis-field');
+    if (role === 'guru') {
+        nipField.classList.remove('hidden');
+        nisField.classList.add('hidden');
+    } else if (role === 'siswa') {
+        nisField.classList.remove('hidden');
+        nipField.classList.add('hidden');
+    } else {
+        nipField.classList.add('hidden');
+        nisField.classList.add('hidden');
+    }
+});
 </script>
 @endsection

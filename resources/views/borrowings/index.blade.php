@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+ @extends('layouts.dashboard')
 
 @section('title', 'Daftar Peminjaman')
 @section('page-title', 'Daftar Peminjaman')
@@ -45,9 +45,9 @@
             <div class="flex gap-2">
                 <select name="status" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500">
                     <option value="">Semua Status</option>
-                    <option value="borrowed" {{ request('status') == 'borrowed' ? 'selected' : '' }}>Sedang Dipinjam</option>
-                    <option value="returned" {{ request('status') == 'returned' ? 'selected' : '' }}>Sudah Dikembalikan</option>
-                    <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Terlambat</option>
+                    <option value="dipinjam" {{ request('status') == 'dipinjam' ? 'selected' : '' }}>Sedang Dipinjam</option>
+                    <option value="dikembalikan" {{ request('status') == 'dikembalikan' ? 'selected' : '' }}>Sudah Dikembalikan</option>
+                    <option value="terlambat" {{ request('status') == 'terlambat' ? 'selected' : '' }}>Terlambat</option>
                 </select>
                 <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
                     <i class="fas fa-search"></i>
@@ -77,10 +77,10 @@
                                         {{ $borrowing->book->title }}
                                     </h4>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        @if($borrowing->status === 'borrowed') bg-green-100 text-green-800
-                                        @elseif($borrowing->status === 'returned') bg-gray-100 text-gray-800
-                                        @else bg-red-100 text-red-800 @endif">
-                                        {{ $borrowing->status_text }}
+                                        @if($borrowing->approval_status === 'disetujui') bg-green-100 text-green-800
+                                        @elseif($borrowing->approval_status === 'ditolak') bg-red-100 text-red-800
+                                        @else bg-yellow-100 text-yellow-800 @endif">
+                                        {{ $borrowing->approval_status_text }}
                                     </span>
                                 </div>
                                 <p class="text-sm text-gray-500">
@@ -116,7 +116,7 @@
                         </div>
                         
                         <div class="flex items-center space-x-2">
-                            @if($borrowing->status === 'borrowed')
+                            @if($borrowing->status === 'dipinjam')
                                 @if(auth()->user()->isPerpustakawan())
                                     <a href="{{ route('perpustakawan.borrowings.edit', $borrowing) }}"
                                        class="text-yellow-600 hover:text-yellow-800">

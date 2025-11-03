@@ -18,8 +18,8 @@ class DashboardController extends Controller
             'total_books' => Book::count(),
             'total_users' => User::count(),
             'total_borrowings' => Borrowing::count(),
-            'active_borrowings' => Borrowing::where('status', 'borrowed')->count(),
-            'overdue_borrowings' => Borrowing::where('status', 'overdue')->count(),
+            'active_borrowings' => Borrowing::where('status', 'dipinjam')->count(),
+            'overdue_borrowings' => Borrowing::where('status', 'terlambat')->count(),
             'total_fines' => Borrowing::where('fine_amount', '>', 0)->sum('fine_amount'),
             'unpaid_fines' => Borrowing::where('fine_amount', '>', 0)->where('fine_paid', false)->sum('fine_amount'),
         ];
@@ -43,7 +43,7 @@ class DashboardController extends Controller
             'available_books' => Book::where('stock', '>', 0)->count(),
             'my_borrowings' => Borrowing::where('user_id', $user->id)->count(),
             'active_borrowings' => Borrowing::where('user_id', $user->id)
-                ->where('status', 'borrowed')
+                ->where('status', 'dipinjam')
                 ->count(),
         ];
 
@@ -70,7 +70,7 @@ class DashboardController extends Controller
             'available_books' => Book::where('stock', '>', 0)->count(),
             'my_borrowings' => Borrowing::where('user_id', $user->id)->count(),
             'active_borrowings' => Borrowing::where('user_id', $user->id)
-                ->where('status', 'borrowed')
+                ->where('status', 'dipinjam')
                 ->count(),
         ];
 
@@ -93,11 +93,28 @@ class DashboardController extends Controller
      */
     private function updateOverdueFines()
     {
-        $overdueBorrowings = Borrowing::where('status', 'borrowed')
-            ->where('due_date', '<', now())
+        // Set status to 'terlambat' for borrowings overdue by more than 7 days
+        $severelyOverdueBorrowings = Borrowing::where('status', 'dipinjam')
+            ->where('due_date', '<', now()->subDays(7))
+            ->whereHas('user', function($q) {
+                $q->where('role', 'siswa');
+            })
             ->get();
-        
-        foreach ($overdueBorrowings as $borrowing) {
+
+        foreach ($severelyOverdueBorrowings as $borrowing) {
+            $borrowing->update(['status' => 'terlambat']);
+            $borrowing->updateFine();
+        }
+
+        // Update fines for all overdue borrowings (in case some are between 0-7 days overdue)
+        $allOverdueBorrowings = Borrowing::where('status', 'dipinjam')
+            ->where('due_date', '<', now())
+            ->whereHas('user', function($q) {
+                $q->where('role', 'siswa');
+            })
+            ->get();
+
+        foreach ($allOverdueBorrowings as $borrowing) {
             $borrowing->updateFine();
         }
     }

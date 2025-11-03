@@ -20,6 +20,24 @@
         </a>
     </div>
 
+    <script>
+        // Auto-refresh user list every 10 seconds
+        setInterval(() => {
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newList = doc.querySelector('ul.divide-y');
+                    const currentList = document.querySelector('ul.divide-y');
+                    if (newList && currentList) {
+                        currentList.innerHTML = newList.innerHTML;
+                    }
+                })
+                .catch(err => console.error('Failed to refresh user list:', err));
+        }, 10000);
+    </script>
+
     <!-- Search and Filter -->
     <div class="bg-white p-4 rounded-lg shadow">
         <form method="GET" class="flex flex-col md:flex-row gap-4">
@@ -78,6 +96,17 @@
                                     <i class="fas fa-envelope mr-1"></i>
                                     {{ $user->email }}
                                 </p>
+                                @if($user->role === 'guru' && $user->nip)
+                                <p class="text-sm text-gray-500">
+                                    <i class="fas fa-id-card mr-1"></i>
+                                    NIP: {{ $user->nip }}
+                                </p>
+                                @elseif($user->role === 'siswa' && $user->nis)
+                                <p class="text-sm text-gray-500">
+                                    <i class="fas fa-id-card mr-1"></i>
+                                    NIS: {{ $user->nis }}
+                                </p>
+                                @endif
                                 <p class="text-sm text-gray-500">
                                     <i class="fas fa-calendar mr-1"></i>
                                     Bergabung: {{ $user->created_at->format('d M Y') }}

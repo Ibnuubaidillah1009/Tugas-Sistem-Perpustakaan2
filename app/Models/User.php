@@ -24,12 +24,14 @@ protected $fillable = [
     'password',
     'role',
     'photo',
+    'nip',
+    'nis',
 ];
 
 public function getPhotoUrlAttribute()
 {
-    if ($this->photo && Storage::exists('public/images/' . $this->photo)) {
-        return asset('storage/images/' . $this->photo);
+    if ($this->photo && file_exists(public_path('images/' . $this->photo))) {
+        return asset('images/' . $this->photo);
     }
     return asset('images/default-avatar.png');
 }

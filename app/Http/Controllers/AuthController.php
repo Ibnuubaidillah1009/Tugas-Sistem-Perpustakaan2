@@ -60,12 +60,14 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'nis' => 'required|string|max:255',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'nis' => $request->nis,
             'password' => Hash::make($request->password),
             'role' => 'siswa', // Default role for all new registrations
         ]);

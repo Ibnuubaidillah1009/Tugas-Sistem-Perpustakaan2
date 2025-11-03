@@ -16,6 +16,7 @@ class Borrowing extends Model
         'return_date',
         'due_date',
         'status',
+        'approval_status',
         'notes',
         'fine_amount',
         'fine_paid',
@@ -52,7 +53,7 @@ class Borrowing extends Model
      */
     public function isOverdue()
     {
-        return $this->status === 'borrowed' && $this->due_date < now();
+        return $this->status === 'dipinjam' && $this->due_date < now();
     }
 
     /**
@@ -60,12 +61,17 @@ class Borrowing extends Model
      */
     public function calculateFine()
     {
-        if ($this->status !== 'borrowed' || $this->due_date >= now()) {
+        // Only apply fines to siswa (students)
+        if (!$this->user->isSiswa()) {
+            return 0;
+        }
+
+        if ($this->status !== 'dipinjam' || $this->due_date >= now()) {
             return 0;
         }
 
         $overdueDays = now()->diffInDays($this->due_date);
-        
+
         if ($overdueDays <= 0) {
             return 0;
         }
@@ -91,7 +97,7 @@ class Borrowing extends Model
             $this->update([
                 'fine_amount' => $fineAmount,
                 'fine_calculated_at' => now(),
-                'status' => 'overdue'
+                'status' => 'terlambat'
             ]);
         }
         
@@ -106,5 +112,32 @@ class Borrowing extends Model
         $this->update([
             'fine_paid' => true
         ]);
+    }
+
+    /**
+     * Get status text in Indonesian
+     */
+    public function getStatusTextAttribute()
+    {
+        return match($this->status) {
+            'menunggu_perizinan' => 'Menunggu Perizinan',
+            'dipinjam' => 'Sedang Dipinjam',
+            'dikembalikan' => 'Sudah Dikembalikan',
+            'terlambat' => 'Terlambat',
+            default => ucfirst($this->status)
+        };
+    }
+
+    /**
+     * Get approval status text in Indonesian
+     */
+    public function getApprovalStatusTextAttribute()
+    {
+        return match($this->approval_status) {
+            'menunggu_perizinan' => 'Menunggu Perizinan',
+            'disetujui' => 'Disetujui',
+            'ditolak' => 'Ditolak',
+            default => ucfirst($this->approval_status)
+        };
     }
 }

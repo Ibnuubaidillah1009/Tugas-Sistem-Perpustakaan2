@@ -5,266 +5,182 @@
 @section('page-description', 'Kelola sistem perpustakaan dengan mudah')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        @if(auth()->user()->photo)
-                            <img src="{{ auth()->user()->photo_url }}" alt="User Photo" class="w-12 h-12 rounded-full object-cover">
-                        @else
-                            <i class="fas fa-user text-2xl text-primary-600"></i>
-                        @endif
+<div class="space-y-6 bg-[#f8fafc] min-h-screen p-4 rounded-lg">
+    <!-- Welcome Header -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold text-gray-800 mb-2">
+                        Selamat Datang, {{ auth()->user()->name }}!
+                    </h1>
+                    <div class="flex items-center space-x-4 text-gray-600 mb-4">
+                        <span class="flex items-center">
+                            <i class="fas fa-calendar-alt mr-2 text-blue-600"></i>
+                            {{ now()->format('l, d F Y') }}
+                        </span>
+                        <span class="flex items-center">
+                            <i class="fas fa-user-tie mr-2 text-blue-600"></i>
+                            Perpustakawan
+                        </span>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Buku</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $stats['total_books'] }}</dd>
-                        </dl>
-                    </div>
+                    <p class="text-gray-700">
+                        Kelola perpustakaan Anda dengan mudah dan efisien.
+                    </p>
                 </div>
-            </div>
-        </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-users text-2xl text-green-600"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total User</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $stats['total_users'] }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exchange-alt text-2xl text-blue-600"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Peminjaman</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $stats['total_borrowings'] }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-clock text-2xl text-yellow-600"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Sedang Dipinjam</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $stats['active_borrowings'] }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Terlambat</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $stats['overdue_borrowings'] }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-money-bill-wave text-2xl text-yellow-600"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Denda</dt>
-                            <dd class="text-lg font-medium text-gray-900">Rp {{ number_format($stats['total_fines'], 0, ',', '.') }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-credit-card text-2xl text-orange-600"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Belum Dibayar</dt>
-                            <dd class="text-lg font-medium text-gray-900">Rp {{ number_format($stats['unpaid_fines'], 0, ',', '.') }}</dd>
-                        </dl>
+                <div class="mt-6 lg:mt-0">
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <p class="text-gray-500 text-sm mb-2">Waktu Saat Ini</p>
+                            <p class="text-xl font-mono font-semibold text-blue-700" id="current-time">{{ now()->format('H:i:s') }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Borrowings -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                    <i class="fas fa-exchange-alt mr-2"></i>
-                    Peminjaman Terbaru
-                </h3>
-                <div class="flow-root">
-                    <ul class="-my-5 divide-y divide-gray-200">
-                        @forelse($recent_borrowings as $borrowing)
-                            <li class="py-4">
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-book text-primary-600"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">
-                                            {{ $borrowing->book->title }}
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            Dipinjam oleh {{ $borrowing->user->name }}
-                                        </p>
-                                        <p class="text-xs text-gray-400">
-                                            {{ $borrowing->borrow_date->format('d M Y') }}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            @if($borrowing->status === 'borrowed') bg-green-100 text-green-800
-                                            @elseif($borrowing->status === 'returned') bg-gray-100 text-gray-800
-                                            @else bg-red-100 text-red-800 @endif">
-                                            {{ ucfirst($borrowing->status) }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="py-4 text-center text-gray-500">
-                                Belum ada peminjaman
-                            </li>
-                        @endforelse
-                    </ul>
-                </div>
-                <div class="mt-4">
-                    <a href="{{ route('perpustakawan.borrowings.index') }}" class="text-sm text-primary-600 hover:text-primary-500">
-                        Lihat semua peminjaman →
-                    </a>
-                </div>
-            </div>
-        </div>
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        @php
+            $cards = [
+                ['title' => 'Total Buku', 'value' => number_format($stats['total_books']), 'icon' => 'fa-book'],
+                ['title' => 'Dipinjam', 'value' => number_format($stats['active_borrowings']), 'icon' => 'fa-clock'],
+                ['title' => 'Terlambat', 'value' => number_format($stats['overdue_borrowings']), 'icon' => 'fa-exclamation-triangle'],
+                ['title' => 'Total Denda', 'value' => 'Rp '.number_format($stats['total_fines'], 0, ',', '.'), 'icon' => 'fa-money-bill-wave'],
+            ];
+        @endphp
 
-        <!-- Recent Books -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                    <i class="fas fa-book mr-2"></i>
-                    Buku Terbaru
-                </h3>
-                <div class="flow-root">
-                    <ul class="-my-5 divide-y divide-gray-200">
-                        @forelse($recent_books as $book)
-                            <li class="py-4">
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-shrink-0">
-                                        <i class="fas fa-book text-primary-600"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">
-                                            {{ $book->title }}
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            {{ $book->author }}
-                                        </p>
-                                        <p class="text-xs text-gray-400">
-                                            Stok: {{ $book->stock }} | {{ $book->category ?? 'Tidak ada kategori' }}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            @if($book->stock > 0) bg-green-100 text-green-800
-                                            @else bg-red-100 text-red-800 @endif">
-                                            {{ $book->stock > 0 ? 'Tersedia' : 'Habis' }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="py-4 text-center text-gray-500">
-                                Belum ada buku
-                            </li>
-                        @endforelse
-                    </ul>
+        @foreach($cards as $card)
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-3xl font-bold text-gray-800 mb-1">{{ $card['value'] }}</div>
+                    <div class="text-sm font-medium text-gray-600">{{ $card['title'] }}</div>
                 </div>
-                <div class="mt-4">
-                    <a href="{{ route('perpustakawan.books.index') }}" class="text-sm text-primary-600 hover:text-primary-500">
-                        Lihat semua buku →
-                    </a>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i class="fas {{ $card['icon'] }} text-xl text-blue-600"></i>
                 </div>
             </div>
         </div>
+        @endforeach
     </div>
 
-    <!-- Quick Actions -->
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                <i class="fas fa-bolt mr-2"></i>
-                Aksi Cepat
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('perpustakawan.books.create') }}" 
-                   class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-plus-circle text-2xl text-primary-600 mr-3"></i>
-                    <div>
-                        <h4 class="font-medium text-gray-900">Tambah Buku</h4>
-                        <p class="text-sm text-gray-500">Tambahkan buku baru ke koleksi</p>
-                    </div>
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left: Recent Borrowings -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-exchange-alt mr-2 text-blue-600"></i>Peminjaman Terbaru
+                </h3>
+                <a href="{{ route('perpustakawan.borrowings.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    Lihat Semua →
                 </a>
-                
-                <a href="{{ route('perpustakawan.borrowings.create') }}" 
-                   class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-exchange-alt text-2xl text-green-600 mr-3"></i>
-                    <div>
-                        <h4 class="font-medium text-gray-900">Tambah Peminjaman</h4>
-                        <p class="text-sm text-gray-500">Catat peminjaman buku baru</p>
+            </div>
+
+            <div class="p-6">
+                @forelse($recent_borrowings as $borrowing)
+                    <div class="flex items-center space-x-4 p-4 rounded-lg hover:bg-gray-50 transition">
+                        <img src="{{ $borrowing->book->photo_url }}" alt="{{ $borrowing->book->title }}" class="w-16 h-20 object-cover rounded-lg border">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">{{ $borrowing->book->title }}</h4>
+                            <p class="text-sm text-gray-600"><i class="fas fa-user mr-1"></i>{{ $borrowing->user->name }}</p>
+                            <p class="text-xs text-gray-500 mt-1"><i class="fas fa-calendar mr-1"></i>{{ $borrowing->borrow_date->format('d M Y') }}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                            @if($borrowing->status === 'dipinjam')
+                                bg-green-100 text-green-700
+                            @elseif($borrowing->status === 'dikembalikan')
+                                bg-gray-100 text-gray-700
+                            @else
+                                bg-red-100 text-red-700
+                            @endif">
+                            {{ $borrowing->status_text }}
+                        </span>
                     </div>
-                </a>
-                
-                <a href="{{ route('perpustakawan.users.create') }}" 
-                   class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-user-plus text-2xl text-blue-600 mr-3"></i>
-                    <div>
-                        <h4 class="font-medium text-gray-900">Tambah User</h4>
-                        <p class="text-sm text-gray-500">Daftarkan user baru</p>
+                    @if(!$loop->last)
+                        <hr class="my-3 border-gray-100">
+                    @endif
+                @empty
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-2 text-gray-300"></i>
+                        <p>Belum ada peminjaman</p>
                     </div>
-                </a>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="space-y-6">
+            <!-- Recent Books -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-book mr-2 text-blue-600"></i>Buku Terbaru
+                    </h3>
+                    <a href="{{ route('perpustakawan.books.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        Lihat Semua →
+                    </a>
+                </div>
+
+                <div class="p-6">
+                    @forelse($recent_books as $book)
+                        <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition">
+                            <img src="{{ $book->photo_url }}" class="w-12 h-16 object-cover rounded border">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800 text-sm">{{ $book->title }}</h4>
+                                <p class="text-xs text-gray-600">{{ $book->author }}</p>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-6 text-gray-500">
+                            <i class="fas fa-book text-3xl mb-2 text-gray-300"></i>
+                            <p>Belum ada buku terbaru</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-bolt mr-2 text-blue-600"></i>Aksi Cepat
+                </h3>
+                <div class="space-y-3">
+                    @php
+                        $actions = [
+                            ['route'=>'books.create','icon'=>'fa-plus','title'=>'Tambah Buku','desc'=>'Tambahkan buku baru'],
+                            ['route'=>'borrowings.create','icon'=>'fa-exchange-alt','title'=>'Pinjam Buku','desc'=>'Catat peminjaman buku'],
+                            ['route'=>'users.create','icon'=>'fa-user-plus','title'=>'Tambah User','desc'=>'Daftarkan pengguna baru'],
+                        ];
+                    @endphp
+
+                    @foreach($actions as $act)
+                        <a href="{{ route('perpustakawan.'.$act['route']) }}" class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition">
+                            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-4">
+                                <i class="fas {{ $act['icon'] }}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">{{ $act['title'] }}</h4>
+                                <p class="text-sm text-gray-600">{{ $act['desc'] }}</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-blue-400 ml-auto"></i>
+                        </a>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
+        document.getElementById('current-time').textContent = timeString;
+    }
+    setInterval(updateTime, 1000);
+</script>
 @endsection

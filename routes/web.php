@@ -33,6 +33,9 @@ Route::middleware(['auth', 'role:perpustakawan'])->prefix('perpustakawan')->name
     Route::get('/borrowings/{borrowing}/print-receipt', [BorrowingController::class, 'printReceipt'])->name('borrowings.print-receipt');
     Route::patch('/borrowings/{borrowing}/return', [BorrowingController::class, 'return'])->name('borrowings.return');
     Route::patch('/borrowings/{borrowing}/pay-fine', [BorrowingController::class, 'payFine'])->name('borrowings.pay-fine');
+    Route::get('/loans/permissions', [BorrowingController::class, 'permissions'])->name('borrowings.permissions');
+    Route::patch('/loans/approve/{borrowing}', [BorrowingController::class, 'approve'])->name('borrowings.approve');
+    Route::patch('/loans/reject/{borrowing}', [BorrowingController::class, 'reject'])->name('borrowings.reject');
     Route::resource('users', UserController::class);
 });
 

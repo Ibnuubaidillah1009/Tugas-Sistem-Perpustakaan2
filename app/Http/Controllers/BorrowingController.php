@@ -71,7 +71,6 @@ public function store(Request $request)
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'book_id' => 'required|exists:books,id',
-            'due_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
         ]);
 
@@ -94,7 +93,7 @@ public function store(Request $request)
     // Check if user already has this book borrowed
     $existingBorrowing = Borrowing::where('user_id', $userId)
         ->where('book_id', $book->id)
-        ->where('status', 'borrowed')
+        ->where('status', 'dipinjam')
         ->first();
 
     if ($existingBorrowing) {
@@ -106,7 +105,8 @@ public function store(Request $request)
         'book_id' => $book->id,
         'borrow_date' => now(),
         'due_date' => $request->due_date ?? now()->addDays(7),
-        'status' => 'borrowed',
+        'status' => 'menunggu_perizinan',
+        'approval_status' => 'menunggu_perizinan',
         'notes' => $request->notes,
     ]);
 
@@ -114,7 +114,7 @@ public function store(Request $request)
                     ($user->isGuru() ? 'guru.borrowings.index' : 'siswa.borrowings.index');
 
     return redirect()->route($redirectRoute)
-        ->with('success', 'Buku berhasil dipinjam.');
+        ->with('success', 'Permintaan peminjaman berhasil diajukan dan menunggu persetujuan admin.');
 }
 
     public function show(Borrowing $borrowing)
@@ -145,7 +145,7 @@ public function store(Request $request)
             'book_id' => 'required|exists:books,id',
             'borrow_date' => 'required|date',
             'due_date' => 'required|date|after:borrow_date',
-            'status' => 'required|in:borrowed,returned,overdue',
+            'status' => 'required|in:menunggu_perizinan,dipinjam,dikembalikan,terlambat',
             'notes' => 'nullable|string',
         ]);
 
@@ -171,7 +171,7 @@ public function store(Request $request)
         }
 
         $borrowing->update([
-            'status' => 'returned',
+            'status' => 'dikembalikan',
             'return_date' => now(),
         ]);
 
@@ -184,8 +184,8 @@ public function store(Request $request)
      */
     private function updateOverdueFines()
     {
-        // Set status to 'overdue' for borrowings overdue by more than 7 days
-        $severelyOverdueBorrowings = Borrowing::where('status', 'borrowed')
+        // Set status to 'terlambat' for borrowings overdue by more than 7 days
+        $severelyOverdueBorrowings = Borrowing::where('status', 'dipinjam')
             ->where('due_date', '<', now()->subDays(7))
             ->whereHas('user', function($q) {
                 $q->where('role', 'siswa');
@@ -193,12 +193,12 @@ public function store(Request $request)
             ->get();
 
         foreach ($severelyOverdueBorrowings as $borrowing) {
-            $borrowing->update(['status' => 'overdue']);
+            $borrowing->update(['status' => 'terlambat']);
             $borrowing->updateFine();
         }
 
         // Update fines for all overdue borrowings (in case some are between 0-7 days overdue)
-        $allOverdueBorrowings = Borrowing::where('status', 'borrowed')
+        $allOverdueBorrowings = Borrowing::where('status', 'dipinjam')
             ->where('due_date', '<', now())
             ->whereHas('user', function($q) {
                 $q->where('role', 'siswa');
@@ -222,10 +222,58 @@ public function store(Request $request)
         $borrowing->markFineAsPaid();
 
         $user = auth()->user();
-        $redirectRoute = $user->isPerpustakawan() ? 'perpustakawan.borrowings.index' : 
+        $redirectRoute = $user->isPerpustakawan() ? 'perpustakawan.borrowings.index' :
                         ($user->isGuru() ? 'guru.borrowings.index' : 'siswa.borrowings.index');
 
         return redirect()->route($redirectRoute)
             ->with('success', 'Denda berhasil dibayar.');
+    }
+
+    /**
+     * Show pending approvals for admin
+     */
+    public function permissions()
+    {
+        $borrowings = Borrowing::with(['user', 'book'])
+            ->where('approval_status', 'menunggu_perizinan')
+            ->latest()
+            ->paginate(10);
+
+        return view('borrowings.permissions', compact('borrowings'));
+    }
+
+    /**
+     * Approve a borrowing request
+     */
+    public function approve(Borrowing $borrowing)
+    {
+        if (!auth()->user()->isPerpustakawan()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $borrowing->update([
+            'approval_status' => 'disetujui',
+            'status' => 'dipinjam'
+        ]);
+
+        return redirect()->route('perpustakawan.borrowings.permissions')
+            ->with('success', 'Peminjaman berhasil disetujui.');
+    }
+
+    /**
+     * Reject a borrowing request
+     */
+    public function reject(Borrowing $borrowing)
+    {
+        if (!auth()->user()->isPerpustakawan()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $borrowing->update([
+            'approval_status' => 'ditolak'
+        ]);
+
+        return redirect()->route('perpustakawan.borrowings.permissions')
+            ->with('success', 'Peminjaman berhasil ditolak.');
     }
 }

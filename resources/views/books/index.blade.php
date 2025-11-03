@@ -10,7 +10,7 @@
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 		<form method="GET" action="{{ url()->current() }}" class="w-full sm:max-w-md">
 			<div class="relative">
-				<input type="text" name="q" value="{{ request('q') }}" placeholder="Cari judul, penulis, atau ISBN..."
+				<input type="text" name="q" value="{{ request('q') }}" placeholder="Cari judul, penulis, ISBN, atau barcode..."
 					class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
 				<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
 					<i class="fas fa-search"></i>
@@ -39,7 +39,7 @@
 					: ($role === 'guru'
 						? route('guru.books.show', $book)
 						: route('siswa.books.show', $book));
-
+						
 				$coverUrl = $book->photo_url;
 
 				$canBorrow = (auth()->user()->isGuru() || auth()->user()->isSiswa());
@@ -82,6 +82,23 @@
 									class="text-yellow-600 hover:text-yellow-700" title="Edit">
 									<i class="fas fa-edit"></i>
 								</a>
+								@php
+									$borrowedCount = $book->borrowings()->where('status', 'dipinjam')->count();
+								@endphp
+								@if($borrowedCount > 0)
+									<button onclick="showDeleteConfirmation({{ $book->id }}, '{{ $book->title }}', {{ $borrowedCount }})"
+										class="text-red-600 hover:text-red-700" title="Hapus">
+										<i class="fas fa-trash"></i>
+									</button>
+								@else
+									<form method="POST" action="{{ route('perpustakawan.books.destroy', $book) }}" onsubmit="return confirm('Hapus buku: {{ $book->title }}?')" class="inline">
+										@csrf
+										@method('DELETE')
+										<button type="submit" class="text-red-600 hover:text-red-700" title="Hapus">
+											<i class="fas fa-trash"></i>
+										</button>
+									</form>
+								@endif
 							@endif
 
 							@if($canBorrow)
@@ -125,5 +142,90 @@
 			{{ $books->withQueryString()->links() }}
 		</div>
 	@endif
+
+	<!-- Delete Confirmation Modal -->
+	<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+		<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+			<div class="mt-3 text-center">
+				<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+					<i class="fas fa-exclamation-triangle text-red-600"></i>
+				</div>
+				<h3 class="text-lg leading-6 font-medium text-gray-900 mt-4" id="modalTitle">Konfirmasi Hapus</h3>
+				<div class="mt-2 px-7 py-3">
+					<p class="text-sm text-gray-500" id="modalMessage"></p>
+				</div>
+				<div class="flex items-center px-4 py-3">
+					<button id="cancelBtn" class="px-4 py-2 bg-gray-300 text-gray-900 text-base font-medium rounded-md w-full mr-2 shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+						Tidak
+					</button>
+					<button id="confirmBtn" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">
+						Ya, Hapus
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
+
+<script>
+function showDeleteConfirmation(bookId, bookTitle, borrowedCount) {
+    document.getElementById('modalTitle').textContent = 'Konfirmasi Hapus Buku';
+    document.getElementById('modalMessage').innerHTML = `Buku "<strong>${bookTitle}</strong>" sedang dipinjam oleh <strong>${borrowedCount} orang</strong>.<br><br>Apakah Anda yakin ingin menghapus buku ini?<br><small class="text-gray-500">Peminjaman akan tetap ada dalam sistem.</small>`;
+
+    document.getElementById('confirmBtn').onclick = function() {
+        // Disable button to prevent double-click
+        this.disabled = true;
+        this.textContent = 'Menghapus...';
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/perpustakawan/books/${bookId}`;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        const forceDeleteInput = document.createElement('input');
+        forceDeleteInput.type = 'hidden';
+        forceDeleteInput.name = 'force_delete';
+        forceDeleteInput.value = '1';
+        form.appendChild(forceDeleteInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+
+    document.getElementById('cancelBtn').onclick = function() {
+        // Reset button state
+        const confirmBtn = document.getElementById('confirmBtn');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Ya, Hapus';
+
+        document.getElementById('deleteModal').classList.add('hidden');
+    };
+
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        // Reset button state
+        const confirmBtn = document.getElementById('confirmBtn');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Ya, Hapus';
+
+        this.classList.add('hidden');
+    }
+});
+</script>
 @endsection

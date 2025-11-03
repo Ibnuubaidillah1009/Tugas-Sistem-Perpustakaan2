@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - Sistem Perpustakaan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -66,9 +67,13 @@
                         <i class="fas fa-book mr-3"></i>
                         Kelola Buku
                     </a>
-                    <a href="{{ route('perpustakawan.borrowings.index') }}" class="flex items-center px-6 py-3 text-primary-100 hover:bg-primary-700 transition-colors {{ request()->routeIs('perpustakawan.borrowings.*') ? 'bg-primary-700 border-r-4 border-primary-300' : '' }}">
+                    <a href="{{ route('perpustakawan.borrowings.index') }}" class="flex items-center px-6 py-3 text-primary-100 hover:bg-primary-700 transition-colors {{ request()->routeIs('perpustakawan.borrowings.index') ? 'bg-primary-700 border-r-4 border-primary-300' : '' }}">
                         <i class="fas fa-exchange-alt mr-3"></i>
                         Peminjaman
+                    </a>
+                    <a href="{{ route('perpustakawan.borrowings.permissions') }}" class="flex items-center px-6 py-3 text-primary-100 hover:bg-primary-700 transition-colors {{ request()->routeIs('perpustakawan.borrowings.permissions') ? 'bg-primary-700 border-r-4 border-primary-300' : '' }}">
+                        <i class="fas fa-check-circle mr-3"></i>
+                        Perizinan Peminjaman
                     </a>
                     <a href="{{ route('perpustakawan.users.index') }}" class="flex items-center px-6 py-3 text-primary-100 hover:bg-primary-700 transition-colors {{ request()->routeIs('perpustakawan.users.*') ? 'bg-primary-700 border-r-4 border-primary-300' : '' }}">
                         <i class="fas fa-users mr-3"></i>
@@ -121,14 +126,14 @@
                         </div>
                         
                         <div class="relative">
-                            <button class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 focus:outline-none">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 focus:outline-none">
                                 @if(auth()->user()->photo)
                                     <img src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->name }}"
                                          class="w-8 h-8 rounded-full object-cover border-2 border-gray-300">
                                 @else
                                     <i class="fas fa-user-circle text-2xl"></i>
                                 @endif
-                            </button>
+                            </a>
                         </div>
                         
                         <form method="POST" action="{{ route('logout') }}" class="inline">

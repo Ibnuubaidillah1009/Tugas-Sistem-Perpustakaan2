@@ -19,7 +19,7 @@
 
         <form class="mt-8 space-y-6" method="POST" action="{{ route('register') }}">
             @csrf
-            <div class="space-y-4">
+            <div class="bg-primary-50 border border-primary-200 shadow-xl rounded-xl p-6 space-y-4">
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
                     <input id="name" name="name" type="text" autocomplete="name" required
@@ -41,6 +41,16 @@
                 </div>
 
                 <div>
+                    <label for="nis" class="block text-sm font-medium text-gray-700">NIS/NIP</label>
+                    <input id="nis" name="nis" type="text" autocomplete="nis" required
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm @error('nis') border-red-500 @enderror"
+                           placeholder="Masukkan NIS/NIP" value="{{ old('nis') }}">
+                    @error('nis')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Kata Sandi</label>
                     <input id="password" name="password" type="password" autocomplete="new-password" required
                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm @error('password') border-red-500 @enderror"
@@ -56,26 +66,26 @@
                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                            placeholder="Konfirmasi kata sandi">
                 </div>
-            </div>
 
-            @if($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    <ul class="list-disc list-inside">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                @if($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <div>
+                    <button type="submit"
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-user-plus text-primary-500 group-hover:text-primary-400"></i>
+                        </span>
+                        Daftar
+                    </button>
                 </div>
-            @endif
-
-            <div>
-                <button type="submit"
-                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i class="fas fa-user-plus text-primary-500 group-hover:text-primary-400"></i>
-                    </span>
-                    Daftar
-                </button>
             </div>
 
             <div class="text-center">
@@ -85,6 +95,11 @@
                         Masuk di sini
                     </a>
                 </p>
+                <footer>
+                    <p class="mt-5 text-xs text-gray-400">
+                        &copy; {{ date('Y') }} Sistem Perpustakaan ini dibuat oleh siswa SMK NEGERI 1 BANGIL.
+                    </p>
+                </footer>
             </div>
         </form>
     </div>

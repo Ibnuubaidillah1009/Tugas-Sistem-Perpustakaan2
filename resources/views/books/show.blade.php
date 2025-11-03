@@ -116,11 +116,11 @@
                                     <div class="text-sm text-gray-500">Total Peminjaman</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-green-600">{{ $book->borrowings()->where('status', 'returned')->count() }}</div>
+                                    <div class="text-2xl font-bold text-green-600">{{ $book->borrowings()->where('status', 'dikembalikan')->count() }}</div>
                                     <div class="text-sm text-gray-500">Sudah Dikembalikan</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-yellow-600">{{ $book->borrowings()->where('status', 'borrowed')->count() }}</div>
+                                    <div class="text-2xl font-bold text-yellow-600">{{ $book->borrowings()->where('status', 'dipinjam')->count() }}</div>
                                     <div class="text-sm text-gray-500">Sedang Dipinjam</div>
                                 </div>
                             </div>

@@ -76,15 +76,15 @@ php artisan serve
 Setelah menjalankan seeder, Anda dapat login dengan akun berikut:
 
 ### Perpustakawan
-- Email: `admin@perpustakaan.com`
+- Email: `admin@gmail.com`
 - Password: `password`
 
 ### Guru
-- Email: `guru@perpustakaan.com`
+- Email: `BuSadiyah@gmail.com`
 - Password: `password`
 
 ### Siswa
-- Email: `siswa@perpustakaan.com`
+- Email: `Novta@gmail.com`
 - Password: `password`
 
 ## Struktur Database
